@@ -15,7 +15,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             number1.ParseFromStringToBigNumber(firstNum);
             BigNumber number2 = new BigNumber();
             number2.ParseFromStringToBigNumber(secondNum);
-            var result = BigNumber.Subtract(number1, number2);
+            var result = BigNumber.Divide(number1, number2);
 
             Console.WriteLine(result.ToString());
 

@@ -35,6 +35,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             mark = Mark.positive;
             digits = list.ToList();
         }
+
         public BigNumber(Mark mark, List<int> result)
         {
             this.mark = mark;
@@ -350,7 +351,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
         }
         public static BigNumber Divide(BigNumber a, BigNumber b)
         {
-            Mark mark = a.mark == b.mark ? Mark.positive : Mark.negative;
+
             if (CompareDigitsBySize(b, Zero) == 0)
             {
                 throw new DivideByZeroException();
@@ -359,16 +360,70 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             {
                 return Zero;
             }
-            
-            
+            Mark mark = a.mark == b.mark ? Mark.positive : Mark.negative;
+            int countSubstraction = 0;
+            var bSize = b.digits.Count;
+            BigNumber newDigit = new BigNumber(Mark.positive,new List<int>());
+            BigNumber remainderDivision = new BigNumber(Mark.positive,new List<int>());
             List<int> result = new List<int>();
             
-            
+            for (int i = 0, j = a.digits.Count-1; i < bSize; i++, j--)
+            {
+                newDigit.digits.Add(a.digits[j]);
+                a.digits.RemoveAt(a.digits.Count-1);
+            }
+            newDigit.digits.Reverse();
+            BigNumber number = new BigNumber(newDigit.digits);
+            while (a.digits.Count != 0)
+            {
+                countSubstraction = 0;
+                // если число а > б то отнимаю
+                while (CompareDigitsBySize(number, b) == 1 || CompareDigitsBySize(number, b) == 0)
+                {
+                    number = BigNumber.Subtract(number, b);
+                    countSubstraction++;
+                }
+                remainderDivision = number;
 
+                if (countSubstraction != 0)
+                {
 
+                    result.Add(countSubstraction);
+                }
+                else
+                {
+                    result.Add(0);
+                }
 
+                if (CompareDigitsBySize(remainderDivision, Zero) != 0 || a.digits.Count > 0)
+                {                                    
+                        remainderDivision.digits.Insert(0, 0);                                    
+                    number = BigNumber.Sum(new BigNumber(new List<int> { a.digits.Last() }), remainderDivision);
+                    a.digits.RemoveAt(a.digits.Count-1);
+                }
+            }
+            countSubstraction = 0;
+            // если число а > б то отнимаю
+            while (CompareDigitsBySize(number, b) == 1 || CompareDigitsBySize(number, b) == 0)
+            {
+                number = BigNumber.Subtract(number, b);
+                countSubstraction++;
+            }
+            remainderDivision = number;
+
+            if (countSubstraction != 0)
+            {
+
+                result.Add(countSubstraction);
+            }
+            else
+            {
+                result.Add(0);
+            }
+            result.Reverse();
             return new BigNumber(mark, result);
         }
+        //80143
         public override string ToString()
         {
             var result = new StringBuilder(mark == Mark.positive ? "" : "-");
