@@ -68,7 +68,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             int carryover = 0;
             var mark = Mark.positive;
             var compareResult = CompareDigitsBySize(a, b);
-            // (a+ & b +) || (a- & b-)
+            
             if (a.mark == Mark.positive && b.mark == Mark.positive || a.mark == Mark.negative && b.mark == Mark.negative)
             {
                 if (a.mark == Mark.negative || b.mark == Mark.negative)
@@ -107,7 +107,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
                         result.Add(difference);
                     }
                     return new BigNumber(mark, result);
-                }//OK
+                }
                 for (int i = 0; i < minLengthOfDigit; i++)
                 {
                     int sum = a.digits[i] + b.digits[i] + carryover;
@@ -142,8 +142,8 @@ namespace arithmeticOperationsWithVeryLargeNumbers
                 {
                     result.Add(carryover);
                 }
-            }//OK
-            //(a + ,b -) || (a-,b+)
+            }
+            
             if (a.mark == Mark.positive && b.mark == Mark.negative || a.mark == Mark.negative && b.mark == Mark.positive)
             {
                 if (compareResult == 0)
@@ -377,7 +377,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             while (a.digits.Count != 0)
             {
                 countSubstraction = 0;
-                // если число а > б то отнимаю
+                
                 while (CompareDigitsBySize(number, b) == 1 || CompareDigitsBySize(number, b) == 0)
                 {
                     number = BigNumber.Subtract(number, b);
@@ -403,7 +403,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
                 }
             }
             countSubstraction = 0;
-            // если число а > б то отнимаю
+            
             while (CompareDigitsBySize(number, b) == 1 || CompareDigitsBySize(number, b) == 0)
             {
                 number = BigNumber.Subtract(number, b);
@@ -423,7 +423,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             result.Reverse();
             return new BigNumber(mark, result);
         }
-        //80143
+        
         public override string ToString()
         {
             var result = new StringBuilder(mark == Mark.positive ? "" : "-");
@@ -486,5 +486,5 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             }
         }
     }
-    //TO DO add sum different (+/-,-/+,-/-) substract( +/- , -/- , -/+)
+    
 }
