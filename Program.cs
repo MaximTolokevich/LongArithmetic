@@ -11,14 +11,14 @@ namespace arithmeticOperationsWithVeryLargeNumbers
 
             var secondNum = Console.ReadLine();
 
-            BigNumber number1 = new BigNumber();
-            number1.ParseFromStringToBigNumber(firstNum);
-            BigNumber number2 = new BigNumber();
-            number2.ParseFromStringToBigNumber(secondNum);
-            var result = BigNumber.Divide(number1, number2);
+            BigNumber number1 = new BigNumber(firstNum);
+            
+            BigNumber number2 = new BigNumber(secondNum);
+
+            var result = number1 * number2;
 
             Console.WriteLine(result.ToString());
-
+            
         }
     }
 }

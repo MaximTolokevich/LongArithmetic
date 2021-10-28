@@ -14,35 +14,24 @@ namespace arithmeticOperationsWithVeryLargeNumbers
         }
         public Mark mark;
         List<int> digits = new List<int>();
-        public BigNumber()
-        {
-
-        }
         public BigNumber(string bigNumber)
         {
-            if (IsPositive(bigNumber))
-            {
-                mark = Mark.positive;
-            }
-            else
-            {
-                mark = Mark.negative;
-            }
+            mark = IsPositive(bigNumber) == true ? Mark.positive : Mark.negative;
             ParseFromStringToBigNumber(bigNumber);
         }
-        public BigNumber(List<int> list)
+        private BigNumber(List<int> list)
         {
             mark = Mark.positive;
             digits = list.ToList();
         }
 
-        public BigNumber(Mark mark, List<int> result)
+        private BigNumber(Mark mark, List<int> result)
         {
             this.mark = mark;
             digits = result;
         }
 
-        public static BigNumber Zero = new BigNumber("0");
+        private static readonly BigNumber Zero = new("0");
         static bool IsPositive(string number)
         {
 
@@ -50,15 +39,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             {
                 throw new ArgumentException();
             }
-            if (number.StartsWith("-"))
-            {
-
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return !number.StartsWith("-");
         }
         public static BigNumber Sum(BigNumber a, BigNumber b)
         {
@@ -66,136 +47,49 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             var maxLengthOfDigit = Math.Max(a.digits.Count, b.digits.Count);
             var minLengthOfDigit = Math.Min(a.digits.Count, b.digits.Count);
             int carryover = 0;
-            var mark = Mark.positive;
+
             var compareResult = CompareDigitsBySize(a, b);
-            
-            if (a.mark == Mark.positive && b.mark == Mark.positive || a.mark == Mark.negative && b.mark == Mark.negative)
+            for (var i = 0; i < minLengthOfDigit; i++)
             {
-                if (a.mark == Mark.negative || b.mark == Mark.negative)
+                var difference = a.digits[i] + b.digits[i] + carryover;
+                if (difference >= 10)
                 {
-                    mark = Mark.negative;
-
-                    for (var i = 0; i < minLengthOfDigit; i++)
-                    {
-                        var difference = a.digits[i] + b.digits[i] + carryover;
-                        if (difference < 0)
-                        {
-                            difference += 10;
-                            carryover = 1;
-                        }
-                        else
-                        {
-                            carryover = 0;
-                        }
-
-                        result.Add(difference);
-                    }
-                    for (var i = minLengthOfDigit; i < maxLengthOfDigit; i++)
-                    {
-
-                        var difference = compareResult == 1 ? a.digits[i] + carryover : b.digits[i] + carryover;
-                        if (difference < 0)
-                        {
-                            difference += 10;
-                            carryover = 1;
-                        }
-                        else
-                        {
-                            carryover = 0;
-                        }
-
-                        result.Add(difference);
-                    }
-                    return new BigNumber(mark, result);
+                    difference -= 10;
+                    carryover = 1;
                 }
-                for (int i = 0; i < minLengthOfDigit; i++)
+                else
                 {
-                    int sum = a.digits[i] + b.digits[i] + carryover;
-                    if (sum >= 10)
-                    {
-                        sum -= 10;
-                        carryover = 1;
-                    }
-                    else
-                    {
-                        carryover = 0;
-                    }
-                    result.Add(sum);
+                    carryover = 0;
                 }
 
-
-                for (int i = minLengthOfDigit; i < maxLengthOfDigit; i++)
-                {
-                    var sum = compareResult == 1 ? a.digits[i] + carryover : b.digits[i] + carryover;
-                    if (sum >= 10)
-                    {
-                        sum -= 10;
-                        carryover = 1;
-                    }
-                    else
-                    {
-                        carryover = 0;
-                    }
-                    result.Add(sum);
-                }
-                if (carryover > 0)
-                {
-                    result.Add(carryover);
-                }
+                result.Add(difference);
             }
-            
-            if (a.mark == Mark.positive && b.mark == Mark.negative || a.mark == Mark.negative && b.mark == Mark.positive)
+            for (var i = minLengthOfDigit; i < maxLengthOfDigit; i++)
             {
-                if (compareResult == 0)
+
+                var difference = compareResult == 1 ? a.digits[i] + carryover : b.digits[i] + carryover;
+                if (difference >= 10)
                 {
-                    result.Add(0);
-                    return new BigNumber(mark, result);
+                    difference -= 10;
+                    carryover = 1;
                 }
-                else if (compareResult == 1 || compareResult == -1)
+                else
                 {
-
-
-                    for (var i = 0; i < minLengthOfDigit; i++)
-                    {
-                        var difference = compareResult == 1 ? a.digits[i] - b.digits[i] - carryover : b.digits[i] - a.digits[i] - carryover;
-                        if (difference < 0)
-                        {
-                            difference += 10;
-                            carryover = 1;
-                        }
-                        else
-                        {
-                            carryover = 0;
-                        }
-
-                        result.Add(difference);
-                    }
-                    for (var i = minLengthOfDigit; i < maxLengthOfDigit; i++)
-                    {
-                        var difference = compareResult == 1 ? a.digits[i] - carryover : b.digits[i] - carryover;
-                        if (difference < 0)
-                        {
-                            difference += 10;
-                            carryover = 1;
-                        }
-                        else
-                        {
-                            carryover = 0;
-                        }
-
-                        result.Add(difference);
-
-                    }
-                    if (compareResult == -1 && b.mark == Mark.negative || compareResult == 1 && a.mark == Mark.negative)
-                    {
-                        mark = Mark.negative;
-                    }
+                    carryover = 0;
                 }
+
+                result.Add(difference);
+
             }
+            if (carryover > 0)
+            {
+                result.Add(carryover);
+            }
+            var mark = a.mark == Mark.negative ? Mark.negative : Mark.positive;
             RemoveZeros(result);
             return new BigNumber(mark, result);
         }
-        public static BigNumber Subtract(BigNumber a, BigNumber b)
+        public static BigNumber Substract(BigNumber a, BigNumber b)
         {
             List<int> result = new List<int>();
 
@@ -204,94 +98,59 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             var maxLength = Math.Max(a.digits.Count, b.digits.Count);
             var minLength = Math.Min(a.digits.Count, b.digits.Count);
             var carryover = 0;
-
-
-            if (a.mark == Mark.positive && b.mark == Mark.negative || a.mark == Mark.negative && b.mark == Mark.positive)
+            if (a.mark != b.mark)
             {
-                for (var i = 0; i < minLength; i++)
-                {
-                    var difference = a.digits[i] + b.digits[i] + carryover;
-                    if (difference < 0)
-                    {
-                        difference += 10;
-                        carryover = 1;
-                    }
-                    else
-                    {
-                        carryover = 0;
-                    }
-
-                    result.Add(difference);
-                }
-                for (var i = minLength; i < maxLength; i++)
-                {
-
-                    var difference = compareResult == 1 ? a.digits[i] + carryover : b.digits[i] + carryover;
-                    if (difference < 0)
-                    {
-                        difference += 10;
-                        carryover = 1;
-                    }
-                    else
-                    {
-                        carryover = 0;
-                    }
-
-                    result.Add(difference);
-                }
-                mark = a.mark;
+                var newNum = Sum(a, b);
+                mark = newNum.mark;
+                result = Sum(a, b).digits;
                 return new BigNumber(mark, result);
             }
-            if (a.mark == Mark.positive && b.mark == Mark.positive || a.mark == Mark.negative && b.mark == Mark.negative)
+
+            if (compareResult == 0)
             {
-
-                for (var i = 0; i < minLength; i++)
-                {
-                    var difference = compareResult == 1 ? a.digits[i] - b.digits[i] - carryover : b.digits[i] - a.digits[i] - carryover;
-                    if (difference < 0)
-                    {
-                        difference += 10;
-                        carryover = 1;
-                    }
-                    else
-                    {
-                        carryover = 0;
-                    }
-
-                    result.Add(difference);
-                }
-                for (var i = minLength; i < maxLength; i++)
-                {
-                    var difference = compareResult == 1 ? a.digits[i] - carryover : b.digits[i] - carryover;
-                    if (difference < 0)
-                    {
-                        difference += 10;
-                        carryover = 1;
-                    }
-                    else
-                    {
-                        carryover = 0;
-                    }
-
-                    result.Add(difference);
-
-
-                }
-                if (compareResult == 1 && a.mark == Mark.negative && b.mark == Mark.negative)
-                {
-                    mark = Mark.negative;
-                }
-                if (compareResult == -1 && a.mark == Mark.negative && b.mark == Mark.negative)
-                {
-                    mark = Mark.positive;
-                }
-                if (compareResult == -1 && a.mark == Mark.positive && b.mark == Mark.positive)
-                {
-                    mark = Mark.negative;
-                }
-
-                RemoveZeros(result);
+                return Zero;
             }
+            for (var i = 0; i < minLength; i++)
+            {
+                var difference = compareResult == 1 ? a.digits[i] - b.digits[i] - carryover : b.digits[i] - a.digits[i] - carryover;
+                if (difference < 0)
+                {
+                    difference += 10;
+                    carryover = 1;
+                }
+                else
+                {
+                    carryover = 0;
+                }
+                result.Add(difference);
+            }
+            for (var i = minLength; i < maxLength; i++)
+            {
+                var difference = compareResult == 1 ? a.digits[i] - carryover : b.digits[i] - carryover;
+                if (difference < 0)
+                {
+                    difference += 10;
+                    carryover = 1;
+                }
+                else
+                {
+                    carryover = 0;
+                }
+                result.Add(difference);
+            }
+            if (compareResult == 1 && a.mark == Mark.negative && b.mark == Mark.negative)
+            {
+                mark = Mark.negative;
+            }
+            if (compareResult == -1 && a.mark == Mark.negative && b.mark == Mark.negative)
+            {
+                mark = Mark.positive;
+            }
+            if (compareResult == -1 && a.mark == Mark.positive && b.mark == Mark.positive)
+            {
+                mark = Mark.negative;
+            }
+            RemoveZeros(result);
             return new BigNumber(mark, result);
         }
         public static BigNumber Multiply(BigNumber a, BigNumber b)
@@ -340,7 +199,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
                         first.Insert(0, 0);
                     }
                 }
-                sum = Sum(new BigNumber(first), new BigNumber(second));
+                sum = new BigNumber(first) + new BigNumber(second);
                 result = sum.digits.ToList();
                 first.Clear();
                 second = sum.digits.ToList();
@@ -363,24 +222,25 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             Mark mark = a.mark == b.mark ? Mark.positive : Mark.negative;
             int countSubstraction = 0;
             var bSize = b.digits.Count;
-            BigNumber newDigit = new BigNumber(Mark.positive,new List<int>());
-            BigNumber remainderDivision = new BigNumber(Mark.positive,new List<int>());
+            BigNumber newDigit = new BigNumber(Mark.positive, new List<int>());
+            BigNumber remainderDivision = new BigNumber(Mark.positive, new List<int>());
             List<int> result = new List<int>();
-            
-            for (int i = 0, j = a.digits.Count-1; i < bSize; i++, j--)
+
+            for (int i = 0, j = a.digits.Count - 1; i < bSize; i++, j--)
             {
                 newDigit.digits.Add(a.digits[j]);
-                a.digits.RemoveAt(a.digits.Count-1);
+                a.digits.RemoveAt(a.digits.Count - 1);
             }
             newDigit.digits.Reverse();
             BigNumber number = new BigNumber(newDigit.digits);
+            b.mark = b.mark == Mark.negative ? b.mark = Mark.positive : b.mark = Mark.positive;
             while (a.digits.Count != 0)
             {
                 countSubstraction = 0;
-                
-                while (CompareDigitsBySize(number, b) == 1 || CompareDigitsBySize(number, b) == 0)
+
+                while (CompareDigitsBySize(number, b) != -1)
                 {
-                    number = BigNumber.Subtract(number, b);
+                    number = number - b;
                     countSubstraction++;
                 }
                 remainderDivision = number;
@@ -396,17 +256,18 @@ namespace arithmeticOperationsWithVeryLargeNumbers
                 }
 
                 if (CompareDigitsBySize(remainderDivision, Zero) != 0 || a.digits.Count > 0)
-                {                                    
-                        remainderDivision.digits.Insert(0, 0);                                    
-                    number = BigNumber.Sum(new BigNumber(new List<int> { a.digits.Last() }), remainderDivision);
-                    a.digits.RemoveAt(a.digits.Count-1);
+                {
+
+                    remainderDivision.digits.Insert(0, 0);
+                    number = new BigNumber(a.digits.Last().ToString()) + remainderDivision;
+                    a.digits.RemoveAt(a.digits.Count - 1);
                 }
             }
             countSubstraction = 0;
-            
-            while (CompareDigitsBySize(number, b) == 1 || CompareDigitsBySize(number, b) == 0)
+
+            while (CompareDigitsBySize(number, b) != -1)
             {
-                number = BigNumber.Subtract(number, b);
+                number = number - b;
                 countSubstraction++;
             }
             remainderDivision = number;
@@ -421,16 +282,14 @@ namespace arithmeticOperationsWithVeryLargeNumbers
                 result.Add(0);
             }
             result.Reverse();
+            RemoveZeros(result);
             return new BigNumber(mark, result);
         }
-        
+
         public override string ToString()
         {
             var result = new StringBuilder(mark == Mark.positive ? "" : "-");
-            foreach (var item in digits.Reverse<int>())
-            {
-                result.Append(Convert.ToString(item));
-            }
+            result.AppendJoin("", digits.Reverse<int>());
             return result.ToString();
         }
         public BigNumber ParseFromStringToBigNumber(string number)
@@ -485,6 +344,17 @@ namespace arithmeticOperationsWithVeryLargeNumbers
                 }
             }
         }
+        public static BigNumber operator -(BigNumber a)
+        {
+            a.mark = a.mark == Mark.positive ? Mark.negative : Mark.positive;
+            return a;
+        }
+        public static BigNumber operator +(BigNumber a, BigNumber b) => a.mark == b.mark
+        ? Sum(a, b)
+        : Substract(a, b);
+        public static BigNumber operator -(BigNumber a, BigNumber b) => Substract(a, b);
+        public static BigNumber operator *(BigNumber a, BigNumber b) => Multiply(a, b);
+        public static BigNumber operator /(BigNumber a, BigNumber b) => Divide(a, b);
     }
-    
+
 }
