@@ -43,11 +43,12 @@ namespace arithmeticOperationsWithVeryLargeNumbers
         }
         public static BigNumber Sum(BigNumber a, BigNumber b)
         {
+
             List<int> result = new List<int>();
             var maxLengthOfDigit = Math.Max(a.digits.Count, b.digits.Count);
             var minLengthOfDigit = Math.Min(a.digits.Count, b.digits.Count);
             int carryover = 0;
-
+            
             var compareResult = CompareDigitsBySize(a, b);
             for (var i = 0; i < minLengthOfDigit; i++)
             {
@@ -98,13 +99,8 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             var maxLength = Math.Max(a.digits.Count, b.digits.Count);
             var minLength = Math.Min(a.digits.Count, b.digits.Count);
             var carryover = 0;
-            if (a.mark != b.mark)
-            {
-                var newNum = Sum(a, b);
-                mark = newNum.mark;
-                result = Sum(a, b).digits;
-                return new BigNumber(mark, result);
-            }
+            
+           
 
             if (compareResult == 0)
             {
@@ -204,8 +200,6 @@ namespace arithmeticOperationsWithVeryLargeNumbers
                 first.Clear();
                 second = sum.digits.ToList();
             }
-
-
             return new BigNumber(mark, result);
         }
         public static BigNumber Divide(BigNumber a, BigNumber b)
@@ -257,8 +251,11 @@ namespace arithmeticOperationsWithVeryLargeNumbers
 
                 if (CompareDigitsBySize(remainderDivision, Zero) != 0 || a.digits.Count > 0)
                 {
-
-                    remainderDivision.digits.Insert(0, 0);
+                    if (CompareDigitsBySize(remainderDivision, Zero) != 0)
+                    {
+                        remainderDivision.digits.Insert(0, 0);
+                    }
+                    
                     number = new BigNumber(a.digits.Last().ToString()) + remainderDivision;
                     a.digits.RemoveAt(a.digits.Count - 1);
                 }
@@ -352,7 +349,10 @@ namespace arithmeticOperationsWithVeryLargeNumbers
         public static BigNumber operator +(BigNumber a, BigNumber b) => a.mark == b.mark
         ? Sum(a, b)
         : Substract(a, b);
-        public static BigNumber operator -(BigNumber a, BigNumber b) => Substract(a, b);
+
+        public static BigNumber operator -(BigNumber a, BigNumber b) => a.mark != b.mark
+        ? Sum(a, b)
+        : Substract(a, b);
         public static BigNumber operator *(BigNumber a, BigNumber b) => Multiply(a, b);
         public static BigNumber operator /(BigNumber a, BigNumber b) => Divide(a, b);
     }

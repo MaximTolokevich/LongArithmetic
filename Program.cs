@@ -15,7 +15,7 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             
             BigNumber number2 = new BigNumber(secondNum);
 
-            var result = number1 * number2;
+            var result = number1 / number2;
 
             Console.WriteLine(result.ToString());
             
