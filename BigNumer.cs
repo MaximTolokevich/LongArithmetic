@@ -246,14 +246,15 @@ namespace arithmeticOperationsWithVeryLargeNumbers
             BigNumber newDigit = new BigNumber(Mark.positive, new List<int>());
             BigNumber remainderDivision = new BigNumber(Mark.positive, new List<int>());
             List<int> result = new List<int>();
+            int digitSize = 0;
             for (int i = 0; i < bSize; i++)
             {
-                newDigit.digits.Add(a.digits[0]);
-                a.digits.RemoveAt(0);
+                newDigit.digits.Add(a.digits[i]);
+                digitSize++;
             }
             BigNumber number = new BigNumber(newDigit.digits);
             b.mark = b.mark == Mark.negative ? b.mark = Mark.positive : b.mark = Mark.positive;
-            while (a.digits.Count != 0)
+            while (digitSize<a.digits.Count)
             {
                 countSubstraction = 0;
                 while (CompareDigitsBySize(number, b) != -1)
@@ -271,14 +272,15 @@ namespace arithmeticOperationsWithVeryLargeNumbers
                 {
                     result.Add(0);
                 }
-                if (CompareDigitsBySize(remainderDivision, Zero) != 0 || a.digits.Count > 0)
+                if ( digitSize < a.digits.Count)
                 {
                     if (CompareDigitsBySize(remainderDivision, Zero) != 0)
                     {
                         remainderDivision.digits.Add(0);
-                    }
-                    number = new BigNumber(a.digits[0].ToString()) + remainderDivision;
-                    a.digits.RemoveAt(0);
+                    }         
+                    
+                    number = new BigNumber(a.digits[digitSize].ToString()) + remainderDivision;
+                    digitSize++;
                 }
             }
             countSubstraction = 0;
